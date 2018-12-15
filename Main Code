@@ -19,71 +19,67 @@ int RregSpeed = 180;
 int LregSpeed = 178;
 
 // threshold values for each sensor
-int Mthresh = 0;
-int Rthresh = 0;
-int Lthresh = 0;
+int Mthresh = 500;
+int Rthresh = 940;
+int Lthresh = 650;
 
 void setup()
 {
-	// Set the modes for the led pins
-	pinMode(greenForStraight, OUTPUT);
-	pinMode(redForRight, OUTPUT);
-	pinMode(blueForLeft, OUTPUT);
+  // Set the modes for the led pins
+  pinMode(greenForStraight, OUTPUT);
+  pinMode(redForRight, OUTPUT);
+  pinMode(blueForLeft, OUTPUT);
 
-	// Set the modes for the motor pins
-	pinMode(motorRight, OUTPUT);
-	pinMode(motorLeft, OUTPUT);
+  // Set the modes for the motor pins
+  pinMode(motorRight, OUTPUT);
+  pinMode(motorLeft, OUTPUT);
 
-	//Set the modes for the sensor pins
-	pinMode(lSensor, INPUT);
-	pinMode(mSensor, INPUT);
-	pinMode(rSensor, INPUT);
+  // Set the modes for the sensor pins
+  pinMode(lSensor, INPUT);
+  pinMode(mSensor, INPUT);
+  pinMode(rSensor, INPUT);
 
-	Mthresh = 500;
-	Lthresh = 940;
-	Rthresh = 650;
-
-	Serial.begin(9600);
+  Serial.begin(9600);
 }
-// put your main code here, to run repeatedly:
 
-void loop() {
+ 
+void loop() { // main code, runs repeatedly
+  
+if ((analogRead(mSensor) >= Mthresh )) // if middle sensor is over black
+{
+  if ((analogRead(rSensor) > Rthresh) && (analogRead(lSensor) > Lthresh)) // if right and left sensors are over black, stop
+  {
+    turnOffAllLeds();
+   digitalWrite(redForRight, HIGH);
+   digitalWrite(blueForLeft, HIGH);  
+   
+   //now stop
+   
+   analogWrite(motorRight, 0);
+   analogWrite(motorLeft, 0); 
+   delay(500);
+  }
+  else // keep going straight
+  {
+    turnOffAllLeds();
+    digitalWrite(greenForStraight, HIGH);
+    driveStraight();
+  }
+}
 
-	if ((analogRead(mSensor) >= Mthresh))
-	{
-		if ((analogRead(rSensor) > Rthresh) && (analogRead(lSensor) > Lthresh))
-		{
-			turnOffAllLeds();
-			digitalWrite(redForRight, HIGH);
-			digitalWrite(blueForLeft, HIGH);
+else if ((analogRead(rSensor) >= Rthresh ) && (analogRead(lSensor) < Lthresh )) // if right sensor is over black and left is not, turn right
+{
+  turnOffAllLeds();
+  digitalWrite(redForRight, HIGH);  
+  driveRight();
+}
 
-			//now stop
-
-			analogWrite(motorRight, 0);
-			analogWrite(motorLeft, 0);
-			delay(500);
-		}
-		else
-		{
-			turnOffAllLeds();
-			digitalWrite(greenForStraight, HIGH);
-			driveStraight();
-		}
-	}
-
-	else if ((analogRead(rSensor) >= Rthresh) && (analogRead(lSensor) < Lthresh))
-	{
-		turnOffAllLeds();
-		digitalWrite(redForRight, HIGH);
-		driveRight();
-	}
-
-	else if ((analogRead(lSensor) >= Lthresh) && (analogRead(rSensor) < Rthresh))
-	{
-		turnOffAllLeds();
-		digitalWrite(blueForLeft, HIGH);
-		driveLeft();
-	}
+else if ((analogRead(lSensor) >= Lthresh)  && (analogRead(rSensor) < Rthresh )) // if left sensor is over black and right is not, turn left
+{
+  turnOffAllLeds();
+  digitalWrite(blueForLeft, HIGH);
+  driveLeft();
+}
 }
 
 
@@ -94,25 +90,25 @@ void loop() {
 
 void driveStraight()
 {
-	analogWrite(motorRight, RregSpeed);
-	analogWrite(motorLeft, LregSpeed);
+  analogWrite(motorRight, RregSpeed);
+  analogWrite(motorLeft, LregSpeed);
 }
 
 void driveLeft()
 {
-	analogWrite(motorRight, fastWheel);
-	analogWrite(motorLeft, slowWheel);
+  analogWrite(motorRight, fastWheel);
+  analogWrite(motorLeft, slowWheel);
 }
 
 void driveRight()
 {
-	analogWrite(motorRight, slowWheel);
-	analogWrite(motorLeft, fastWheel);
+  analogWrite(motorRight, slowWheel);
+  analogWrite(motorLeft, fastWheel);
 }
 
 void turnOffAllLeds()
 {
-	digitalWrite(greenForStraight, LOW);
-	digitalWrite(redForRight, LOW);
-	digitalWrite(blueForLeft, LOW);
+  digitalWrite(greenForStraight, LOW);
+  digitalWrite(redForRight, LOW);
+  digitalWrite(blueForLeft, LOW);
 }
